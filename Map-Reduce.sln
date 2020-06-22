@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29418.71
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Map-Reduce", "Map-Reduce\Map-Reduce.csproj", "{ED671486-B314-44F4-ADC6-91911E09CDAB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ED671486-B314-44F4-ADC6-91911E09CDAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED671486-B314-44F4-ADC6-91911E09CDAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED671486-B314-44F4-ADC6-91911E09CDAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED671486-B314-44F4-ADC6-91911E09CDAB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D6A990E4-72C7-44E4-A0CE-3E2C5D21DA3E}
+	EndGlobalSection
+EndGlobal
