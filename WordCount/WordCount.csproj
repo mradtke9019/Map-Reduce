@@ -9,4 +9,10 @@
     <ProjectReference Include="..\Map-Reduce\Map-Reduce.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="text.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

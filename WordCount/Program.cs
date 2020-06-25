@@ -1,5 +1,5 @@
 ﻿using System;
-using Map_Reduce;
+using System.IO;
 
 namespace WordCount
 {
@@ -8,7 +8,31 @@ namespace WordCount
         static void Main(string[] args)
         {
             Console.WriteLine("Word Count");
-            MapReduce.Run();
+            Mapper("./text.txt");
+            MapReduce.Run(args, Mapper, Reduce, 1, 1, MapReduce.DefaultHashPartitioner);
         }
+
+        static void Mapper(string fileName)
+        {
+            string text = File.ReadAllText(fileName);
+            foreach (var word in text.Split(' ', '\t', '\n', '\r'))
+            {
+                MapReduce.Emit(word, "1");
+            }
+
+        }
+
+        static void Reduce(string key, Func<string, int, string> getNext, int pNum)
+        {
+            int count = 0;
+            string value;
+            while ((value = getNext(key, pNum)) != null)
+            {
+                count++;
+            }
+            Console.WriteLine("key: " + key + " count: " + count);
+        }
+
+
     }
 }
