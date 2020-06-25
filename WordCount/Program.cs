@@ -1,12 +1,14 @@
 ﻿using System;
+using Map_Reduce;
 
-namespace Map_Reduce
+namespace WordCount
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Map Reduce Program Here");
+            Console.WriteLine("Word Count");
+            MapReduce.Run();
         }
     }
 }
