@@ -15,7 +15,7 @@ public class MapReduce
     {
         public string key;
         public List<string> values;
-
+        public int currValue = 0;
         public int CompareTo(Bucket other)
         {
             return this.key.CompareTo(other.key);
@@ -84,7 +84,18 @@ public class MapReduce
         }
 
         Console.WriteLine("Mappers done working");
-        
+
+        var reducerWork = ReducerWork(reducers, reduce);
+        foreach(var work in reducerWork)
+        {
+            work.Start();
+        }
+
+        foreach (var work in reducerWork)
+        {
+            work.Wait();
+        }
+        Console.WriteLine("MapReduce Complete");
     }
 
     public static List<Task> splitWork(string[] files, int nMappers, Action<string> map)
@@ -101,6 +112,29 @@ public class MapReduce
 
         return workers;
 
+    }
+
+    private static void ReduceHelper(List<Bucket> keyValueBucket, Action<string, Func<string, int, string>, int> reduce, int partitionIndex)
+    {
+        foreach(var key in keyValueBucket)
+        {
+            reduce(key.key, getNext, partitionIndex);
+        }
+    }
+
+    private static List<Task> ReducerWork(List<List<Bucket>> reducers, Action<string, Func<string, int, string>, int> reduce)
+    {
+
+        workers = new List<Task>();
+        foreach (var reducer in reducers)
+        {
+            workers.Add(new Task(() =>
+            {
+                ReduceHelper(reducer, reduce, reducers.IndexOf(reducer));
+            }));
+        }
+
+        return workers;
     }
 
     public static void Emit(string key, string value)
@@ -125,8 +159,10 @@ public class MapReduce
 
     public static string getNext(string key, int pNum)
     {
-
-        return "";
+        var bucket = reducers[pNum].Find(x => x.key == key);
+        var nextValue = bucket.currValue >= bucket.values.Count ? null: bucket.values[bucket.currValue];
+        bucket.currValue++;
+        return nextValue;
     }
 
     public static ulong DefaultHashPartitioner(string key, int numPartitions)

@@ -29,7 +29,7 @@ namespace WordCount
             {
                 count++;
             }
-            Console.WriteLine("key: " + key + " count: " + count);
+            Console.WriteLine(key + " - " + count);
         }
 
 
