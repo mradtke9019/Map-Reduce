@@ -8,8 +8,7 @@ namespace WordCount
         static void Main(string[] args)
         {
             Console.WriteLine("Word Count");
-            Mapper("./text.txt");
-            MapReduce.Run(args, Mapper, Reduce, 1, 1, MapReduce.DefaultHashPartitioner);
+            MapReduce.Run(args, Mapper, Reduce, 2, 2, MapReduce.DefaultHashPartitioner);
         }
 
         static void Mapper(string fileName)

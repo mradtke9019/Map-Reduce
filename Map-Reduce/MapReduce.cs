@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -10,13 +11,18 @@ using System.Threading.Tasks;
 public class MapReduce
 {
     //note: consider when two keys map to same bucket
-    private class Bucket
+    private class Bucket : IComparable<Bucket>
     {
-        string key;
-        List<string> values;
+        public string key;
+        public List<string> values;
+
+        public int CompareTo(Bucket other)
+        {
+            return this.key.CompareTo(other.key);
+        }
     }
 
-    private static List<Bucket> buckets;
+    private static List<List<Bucket>> reducers;
     private static Mutex pLock;
     private static Mutex bucketLock;
     private static List<Task> workers;
@@ -58,7 +64,11 @@ public class MapReduce
     public static void Run(string[] args, Action<string> map, Action<string, Func<string, int, string>, int> reduce, int nMapppers, int nReducers, Func<string, int, ulong> partitioner)
     {
         var mappers = splitWork(args, nMapppers, map);
-        buckets = new List<Bucket>();
+        pLock = new Mutex();
+        bucketLock = new Mutex();
+        reducers = new List<List<Bucket>>();
+        for (int i = 0; i < nReducers; i++)
+            reducers.Add(new List<Bucket>());
         MapReduce.partitioner = partitioner;
         //TODO: Fix this assingment 
         MapReduce.numPartitions = nReducers;
@@ -95,7 +105,22 @@ public class MapReduce
 
     public static void Emit(string key, string value)
     {
-        int bucket = (int)MapReduce.partitioner(key,) ;
+        // Find out which reducer to assign this key to
+        int reducerIndex = (int)MapReduce.partitioner(key,MapReduce.numPartitions);
+
+        bucketLock.WaitOne();
+        var bucket = reducers.ElementAt(reducerIndex).Find(x => x.key == key);
+        // If we are able to find a bucket that already has our key, just add our value to that bucket
+        if (bucket != null)
+        {
+            bucket.values.Add(value);
+        }
+        else
+        {
+            // Since we could not find an existing key bucket for us to drop the value into, initialize a new bucket for that reducer to work on with our value.
+            reducers.ElementAt(reducerIndex).Add(new Bucket() { key = key, values = new List<string>() { value } });
+        }
+        bucketLock.ReleaseMutex();
     }
 
     public static string getNext(string key, int pNum)

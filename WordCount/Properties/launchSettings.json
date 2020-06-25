@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WordCount": {
+      "commandName": "Project",
+      "commandLineArgs": "\"text.txt\" \"text.txt\""
+    }
+  }
+}
