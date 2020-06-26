@@ -8,17 +8,16 @@ namespace WordCount
         static void Main(string[] args)
         {
             Console.WriteLine("Word Count");
-            MapReduce.Run(args, Mapper, Reduce, 2, 2, MapReduce.DefaultHashPartitioner);
+            MapReduce.Run(args, Mapper, Reduce, 3, 1, MapReduce.DefaultHashPartitioner);
         }
 
         static void Mapper(string fileName)
         {
             string text = File.ReadAllText(fileName);
-            foreach (var word in text.Split(' ', '\t', '\n', '\r'))
+            foreach (var word in text.Split(' ', '\t', '\n', '\r','\0'))
             {
                 MapReduce.Emit(word, "1");
             }
-
         }
 
         static void Reduce(string key, Func<string, int, string> getNext, int pNum)
@@ -31,7 +30,5 @@ namespace WordCount
             }
             Console.WriteLine(key + " - " + count);
         }
-
-
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
@@ -46,11 +47,13 @@ public class MapReduce
             int workersFile = -999;
 
             if (currFile < files.Length)
-            {
+            { 
                 pLock.WaitOne();
                 workersFile = currFile;
                 currFile++;
                 pLock.ReleaseMutex();
+                if (workersFile >= files.Length)
+                    return;
                 map(files[workersFile]); 
             }
             else 
@@ -61,7 +64,7 @@ public class MapReduce
         }
     }
 
-    public static void Run(string[] args, Action<string> map, Action<string, Func<string, int, string>, int> reduce, int nMapppers, int nReducers, Func<string, int, ulong> partitioner)
+    public static long Run(string[] args, Action<string> map, Action<string, Func<string, int, string>, int> reduce, int nMapppers, int nReducers, Func<string, int, ulong> partitioner)
     {
         var mappers = splitWork(args, nMapppers, map);
         pLock = new Mutex();
@@ -72,21 +75,22 @@ public class MapReduce
         MapReduce.partitioner = partitioner;
         //TODO: Fix this assingment 
         MapReduce.numPartitions = nReducers;
-
+        var mapWatch = Stopwatch.StartNew();
         foreach (var mapper in mappers)
         {
             mapper.Start();
         }
-
         foreach (var mapper in mappers)
         {
             mapper.Wait();
         }
 
-        Console.WriteLine("Mappers done working");
+        mapWatch.Stop();
+
 
         var reducerWork = ReducerWork(reducers, reduce);
-        foreach(var work in reducerWork)
+        var watch = Stopwatch.StartNew();
+        foreach (var work in reducerWork)
         {
             work.Start();
         }
@@ -95,7 +99,10 @@ public class MapReduce
         {
             work.Wait();
         }
-        Console.WriteLine("MapReduce Complete");
+        watch.Stop();
+        Console.WriteLine(nMapppers + " mappers finished in " + mapWatch.ElapsedMilliseconds + " milliseconds");
+        Console.WriteLine(nReducers + " reducers finished in " + watch.ElapsedMilliseconds + " milliseconds");
+        return mapWatch.ElapsedMilliseconds + watch.ElapsedMilliseconds;
     }
 
     public static List<Task> splitWork(string[] files, int nMappers, Action<string> map)

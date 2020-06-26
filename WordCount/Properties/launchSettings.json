@@ -2,7 +2,7 @@
   "profiles": {
     "WordCount": {
       "commandName": "Project",
-      "commandLineArgs": "\"text.txt\" \"text.txt\""
+      "commandLineArgs": "\"text.txt\" \"text.txt\" \"text.txt\""
     }
   }
 }
